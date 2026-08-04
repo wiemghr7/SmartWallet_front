@@ -1,0 +1,67 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-bar-chart-line"></i> Statistiques</h1>
+    <p>Analyse visuelle de l'activité de la plateforme</p>
+  </div>
+</div>
+
+@if (stats) {
+  <div class="grid-2">
+    <!-- Donut revenus/dépenses -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-cash-stack"></i> Revenus vs Dépenses</h2>
+      </div>
+      <div class="panel-body">
+        <div class="chart-box"><canvas id="chartFlux"></canvas></div>
+        <div class="chart-legende">
+          <span class="lg income">{{ stats.totalRevenus }} DT de revenus</span>
+          <span class="lg expense">{{ stats.totalDepenses }} DT de dépenses</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donut comptes -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-people"></i> État des comptes</h2>
+      </div>
+      <div class="panel-body">
+        <div class="chart-box"><canvas id="chartComptes"></canvas></div>
+        <div class="chart-legende">
+          <span class="lg">{{ stats.utilisateursActifs }} actifs</span>
+          <span class="lg muted">{{ stats.utilisateursSuspendus }} suspendus</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Camembert dépenses par catégorie -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-pie-chart-fill"></i> Dépenses par catégorie</h2>
+      </div>
+      <div class="panel-body">
+        <div class="chart-box"><canvas id="chartCategories"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Courbe inscriptions -->
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-graph-up-arrow"></i> Croissance des inscriptions</h2>
+      </div>
+      <div class="panel-body">
+        <div class="chart-box"><canvas id="chartInscriptions"></canvas></div>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div class="panel">
+    <div class="panel-body empty">
+      <i class="bi bi-hourglass-split"></i>
+      <span>Chargement...</span>
+    </div>
+  </div>
+}

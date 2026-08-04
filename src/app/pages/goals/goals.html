@@ -1,0 +1,159 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-trophy"></i> Objectifs d'épargne</h1>
+    <p>Fixez vos objectifs et suivez votre progression</p>
+  </div>
+  <button class="btn-main" (click)="ouvrirAjout()">
+    <i class="bi bi-plus-circle"></i> Nouvel objectif
+  </button>
+</div>
+
+@if (objectifs.length === 0) {
+  <div class="panel">
+    <div class="panel-body empty">
+      <i class="bi bi-trophy"></i>
+      <span>Aucun objectif. Créez-en un pour commencer à épargner.</span>
+    </div>
+  </div>
+} @else {
+  <div class="grid-2">
+    @for (o of objectifs; track o.id) {
+      <div class="panel">
+        <div class="panel-head">
+          <h2><i class="bi bi-flag"></i> {{ o.nom }}</h2>
+          <div>
+            <button class="icon-act" (click)="editer(o)"><i class="bi bi-pencil"></i></button>
+            <button class="icon-act danger" (click)="demanderSuppression(o.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="objectif-montants">
+            <span class="objectif-actuel">{{ o.montantActuel }} DT</span>
+            <span class="objectif-cible">/ {{ o.montantCible }} DT</span>
+          </div>
+
+          <div class="bar">
+            <div
+              class="bar-fill"
+              [class.atteint]="atteint(o)"
+              [style.width.%]="pourcentage(o)"
+            ></div>
+          </div>
+
+          <div class="objectif-foot">
+            @if (atteint(o)) {
+              <span class="badge income"
+                ><i class="bi bi-check-circle"></i> Objectif atteint !</span
+              >
+            } @else {
+              <span class="badge">{{ pourcentage(o) }} %</span>
+              <span class="objectif-reste">Encore {{ reste(o) }} DT</span>
+            }
+          </div>
+
+          @if (o.dateLimite) {
+            <div class="objectif-date">
+              <i class="bi bi-calendar-event"></i> Échéance : {{ o.dateLimite }}
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- MODALE AJOUT / ÉDITION -->
+@if (modaleOuverte) {
+  <div class="overlay" (click)="fermerModale()">
+    <div class="modale" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2>
+          <i class="bi bi-trophy"></i>
+          @if (idEnEdition) {
+            Modifier l'objectif
+          } @else {
+            Nouvel objectif
+          }
+        </h2>
+        <button class="modale-fermer" (click)="fermerModale()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="modale-body">
+        <div class="champ">
+          <label>Nom de l'objectif</label>
+          <input
+            type="text"
+            placeholder="Ex : Vacances d'été"
+            #champNom
+            [value]="objectifEnEdition()?.nom || ''"
+          />
+        </div>
+
+        <div class="champ">
+          <label>Montant cible (DT)</label>
+          <input
+            type="number"
+            placeholder="Ex : 2000"
+            #champCible
+            [value]="objectifEnEdition()?.montantCible || ''"
+          />
+        </div>
+
+        <div class="champ">
+          <label>Déjà épargné (DT)</label>
+          <input
+            type="number"
+            placeholder="Ex : 500"
+            #champActuel
+            [value]="objectifEnEdition()?.montantActuel || ''"
+          />
+        </div>
+
+        <div class="champ">
+          <label>Date limite (optionnel)</label>
+          <input type="date" #champDate [value]="objectifEnEdition()?.dateLimite || ''" />
+        </div>
+
+        @if (erreur) {
+          <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreur }}</div>
+        }
+      </div>
+
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerModale()">Annuler</button>
+        <button
+          class="btn-main"
+          [disabled]="chargement"
+          (click)="valider(champNom.value, champCible.value, champActuel.value, champDate.value)"
+        >
+          @if (chargement) {
+            <i class="bi bi-arrow-repeat"></i> Enregistrement...
+          } @else {
+            <i class="bi bi-check2"></i> Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- CONFIRMATION SUPPRESSION -->
+@if (confirmationOuverte) {
+  <div class="overlay" (click)="annulerSuppression()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
+        <h2>Supprimer cet objectif ?</h2>
+        <p>Cette action est définitive.</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn-danger" (click)="confirmerSuppression()">
+          <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

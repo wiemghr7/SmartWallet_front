@@ -1,0 +1,218 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-person-circle"></i> Mon profil</h1>
+    <p>Gérez vos informations et vos préférences</p>
+  </div>
+</div>
+
+@if (message) {
+  <div class="msg-succes"><i class="bi bi-check-circle"></i> {{ message }}</div>
+}
+
+@if (profil) {
+  <!-- Infos personnelles -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2><i class="bi bi-person"></i> Informations personnelles</h2>
+    </div>
+    <div class="panel-body">
+      <div class="grid-2">
+        <div class="champ">
+          <label>Nom</label>
+          <input type="text" #champNom [value]="profil.nom" />
+        </div>
+        <div class="champ">
+          <label>Prénom</label>
+          <input type="text" #champPrenom [value]="profil.prenom" />
+        </div>
+      </div>
+
+      <div class="champ" style="margin-top: 16px">
+        <label>Email (non modifiable)</label>
+        <input type="email" [value]="profil.email" disabled />
+      </div>
+
+      <div class="champ" style="margin-top: 16px">
+        <label>Revenu mensuel (DT)</label>
+        <input type="number" #champRevenu [value]="profil.revenuMensuel" />
+      </div>
+
+      @if (erreur) {
+        <div class="msg-erreur" style="margin-top: 16px">
+          <i class="bi bi-exclamation-circle"></i> {{ erreur }}
+        </div>
+      }
+
+      <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap">
+        <button
+          class="btn-main"
+          [disabled]="chargement"
+          (click)="enregistrerInfos(champNom.value, champPrenom.value, champRevenu.value)"
+        >
+          @if (chargement) {
+            <i class="bi bi-arrow-repeat"></i> Enregistrement...
+          } @else {
+            <i class="bi bi-check2"></i> Enregistrer
+          }
+        </button>
+        <button class="btn-secondaire" (click)="ouvrirMdp()">
+          <i class="bi bi-key"></i> Modifier le mot de passe
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Catégories privées -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2><i class="bi bi-tags"></i> Mes catégories personnelles</h2>
+      <button class="btn-mini" (click)="ouvrirCat()"><i class="bi bi-plus"></i> Ajouter</button>
+    </div>
+
+    @if (categoriesPrivees().length === 0) {
+      <div class="panel-body empty">
+        <i class="bi bi-tag"></i>
+        <span>Vous n'avez pas encore de catégorie personnelle.</span>
+      </div>
+    } @else {
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Type</th>
+            <th class="right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (cat of categoriesPrivees(); track cat.id) {
+            <tr>
+              <td>
+                <strong>{{ cat.nom }}</strong>
+              </td>
+              <td>
+                @if (cat.type === 'REVENU') {
+                  <span class="badge income">Revenu</span>
+                } @else {
+                  <span class="badge expense">Dépense</span>
+                }
+              </td>
+              <td class="right">
+                <button class="icon-act danger" (click)="demanderSuppression(cat.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+}
+
+<!-- MODALE MOT DE PASSE -->
+@if (modaleMdpOuverte) {
+  <div class="overlay" (click)="fermerMdp()">
+    <div class="modale" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2><i class="bi bi-key"></i> Modifier le mot de passe</h2>
+        <button class="modale-fermer" (click)="fermerMdp()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modale-body">
+        <div class="champ">
+          <label>Mot de passe actuel</label>
+          <input type="password" placeholder="••••••••" #champAncien />
+        </div>
+        <div class="champ">
+          <label>Nouveau mot de passe</label>
+          <input type="password" placeholder="••••••••" #champNouveau />
+        </div>
+        <div class="champ">
+          <label>Confirmer le nouveau mot de passe</label>
+          <input type="password" placeholder="••••••••" #champConfirme />
+        </div>
+        @if (erreurMdp) {
+          <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreurMdp }}</div>
+        }
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerMdp()">Annuler</button>
+        <button
+          class="btn-main"
+          [disabled]="chargementMdp"
+          (click)="changerMdp(champAncien.value, champNouveau.value, champConfirme.value)"
+        >
+          @if (chargementMdp) {
+            <i class="bi bi-arrow-repeat"></i> ...
+          } @else {
+            <i class="bi bi-check2"></i> Modifier
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODALE NOUVELLE CATÉGORIE -->
+@if (modaleCatOuverte) {
+  <div class="overlay" (click)="fermerCat()">
+    <div class="modale" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2><i class="bi bi-tag"></i> Nouvelle catégorie</h2>
+        <button class="modale-fermer" (click)="fermerCat()"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modale-body">
+        <div class="champ">
+          <label>Type</label>
+          <div class="type-choix">
+            <button
+              class="type-btn"
+              [class.actif]="typeChoisi === 'DEPENSE'"
+              (click)="choisirType('DEPENSE')"
+            >
+              <i class="bi bi-arrow-up-circle"></i> Dépense
+            </button>
+            <button
+              class="type-btn"
+              [class.actif]="typeChoisi === 'REVENU'"
+              (click)="choisirType('REVENU')"
+            >
+              <i class="bi bi-arrow-down-circle"></i> Revenu
+            </button>
+          </div>
+        </div>
+        <div class="champ">
+          <label>Nom</label>
+          <input type="text" placeholder="Ex : Freelance" #champNomCat />
+        </div>
+        @if (erreurCat) {
+          <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreurCat }}</div>
+        }
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerCat()">Annuler</button>
+        <button class="btn-main" (click)="creerCat(champNomCat.value)">
+          <i class="bi bi-check2"></i> Créer
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- CONFIRMATION SUPPRESSION -->
+@if (confirmationOuverte) {
+  <div class="overlay" (click)="annulerSuppression()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
+        <h2>Supprimer cette catégorie ?</h2>
+        <p>Les transactions liées perdront cette catégorie.</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn-danger" (click)="confirmerSuppression()">
+          <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

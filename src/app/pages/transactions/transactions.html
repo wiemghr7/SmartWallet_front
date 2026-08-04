@@ -1,0 +1,238 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-arrow-left-right"></i> Transactions</h1>
+    <p>Gérez vos revenus et vos dépenses</p>
+  </div>
+  <button class="btn-main" (click)="ouvrirAjout()">
+    <i class="bi bi-plus-circle"></i> Ajouter
+  </button>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2><i class="bi bi-list-ul"></i> Historique</h2>
+    <span class="count">{{ transactions.length }} transactions</span>
+  </div>
+
+  @if (transactions.length === 0) {
+    <div class="panel-body empty">
+      <i class="bi bi-inbox"></i>
+      <span>Aucune transaction pour le moment</span>
+    </div>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Catégorie</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th class="right">Montant</th>
+          <th class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of transactions; track t.id) {
+          <tr>
+            <td>{{ t.date }}</td>
+            <td>
+              @if (t.categorie) {
+                <span class="chip">{{ t.categorie.nom }}</span>
+              } @else {
+                —
+              }
+            </td>
+            <td>
+              <strong>{{ t.description || '—' }}</strong>
+            </td>
+            <td>
+              @if (t.type === 'REVENU') {
+                <span class="badge income">Revenu</span>
+              } @else {
+                <span class="badge expense">Dépense</span>
+              }
+            </td>
+            <td
+              class="right amount"
+              [class.income]="t.type === 'REVENU'"
+              [class.expense]="t.type === 'DEPENSE'"
+            >
+              @if (t.type === 'REVENU') {
+                +
+              } @else {
+                -
+              }
+              {{ t.montant }} DT
+            </td>
+            <td class="right">
+              <button class="icon-act" (click)="editer(t)"><i class="bi bi-pencil"></i></button>
+              <button class="icon-act danger" (click)="demanderSuppression(t.id)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+<!-- MODALE AJOUT / ÉDITION -->
+@if (modaleOuverte) {
+  <div class="overlay" (click)="fermerModale()">
+    <div class="modale" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2>
+          <i class="bi bi-pencil-square"></i>
+          @if (idEnEdition) {
+            Modifier la transaction
+          } @else {
+            Nouvelle transaction
+          }
+        </h2>
+        <button class="modale-fermer" (click)="fermerModale()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="modale-body">
+        <div class="champ">
+          <label>Type</label>
+          <div class="type-choix">
+            <button
+              class="type-btn"
+              [class.actif]="typeChoisi === 'DEPENSE'"
+              (click)="changerType('DEPENSE')"
+            >
+              <i class="bi bi-arrow-up-circle"></i> Dépense
+            </button>
+            <button
+              class="type-btn"
+              [class.actif]="typeChoisi === 'REVENU'"
+              (click)="changerType('REVENU')"
+            >
+              <i class="bi bi-arrow-down-circle"></i> Revenu
+            </button>
+          </div>
+        </div>
+
+        @if (typeChoisi) {
+          <div class="champ">
+            <label>
+              Catégorie
+              <button class="lien-ajout" (click)="ouvrirCreationCategorie()">
+                <i class="bi bi-plus-circle"></i> Nouvelle
+              </button>
+            </label>
+            <div class="cat-choix">
+              @for (cat of categoriesFiltrees; track cat.id) {
+                <button
+                  class="cat-pastille"
+                  [class.actif]="categorieChoisieId === cat.id"
+                  (click)="choisirCategorie(cat.id)"
+                >
+                  {{ cat.nom }}
+                </button>
+              }
+              @if (categoriesFiltrees.length === 0) {
+                <span class="aucune-cat">Aucune catégorie. Créez-en une.</span>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="champ">
+          <label>Montant (DT)</label>
+          <input
+            type="number"
+            placeholder="0"
+            #champMontant
+            [value]="transactionEnEdition()?.montant || ''"
+          />
+        </div>
+
+        <div class="champ">
+          <label>Date</label>
+          <input type="date" #champDate [value]="transactionEnEdition()?.date || ''" />
+        </div>
+
+        <div class="champ">
+          <label>Description (optionnel)</label>
+          <input
+            type="text"
+            placeholder="Ex : Courses au marché"
+            #champDesc
+            [value]="transactionEnEdition()?.description || ''"
+          />
+        </div>
+
+        @if (erreur) {
+          <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreur }}</div>
+        }
+      </div>
+
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerModale()">Annuler</button>
+        <button
+          class="btn-main"
+          [disabled]="chargement"
+          (click)="valider(champMontant.value, champDate.value, champDesc.value)"
+        >
+          @if (chargement) {
+            <i class="bi bi-arrow-repeat"></i> Enregistrement...
+          } @else {
+            <i class="bi bi-check2"></i> Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- SOUS-MODALE CRÉATION CATÉGORIE -->
+@if (modaleCategorieOuverte) {
+  <div class="overlay" (click)="fermerCreationCategorie()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2><i class="bi bi-tag"></i> Nouvelle catégorie</h2>
+        <button class="modale-fermer" (click)="fermerCreationCategorie()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modale-body">
+        <div class="champ">
+          <label>Nom de la catégorie ({{ typeChoisi === 'REVENU' ? 'Revenu' : 'Dépense' }})</label>
+          <input type="text" placeholder="Ex : Freelance" #champNomCat />
+        </div>
+        @if (erreurCategorie) {
+          <div class="msg-erreur">
+            <i class="bi bi-exclamation-circle"></i> {{ erreurCategorie }}
+          </div>
+        }
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerCreationCategorie()">Annuler</button>
+        <button class="btn-main" (click)="creerCategorie(champNomCat.value)">
+          <i class="bi bi-check2"></i> Créer
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- CONFIRMATION SUPPRESSION -->
+@if (confirmationOuverte) {
+  <div class="overlay" (click)="annulerSuppression()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
+        <h2>Supprimer cette transaction ?</h2>
+        <p>Cette action est définitive et ajustera votre solde.</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn-danger" (click)="confirmerSuppression()">
+          <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

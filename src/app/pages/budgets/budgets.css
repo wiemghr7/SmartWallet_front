@@ -1,0 +1,53 @@
+.page-head h1 i {
+  color: var(--or);
+}
+
+.panel-head {
+  background: linear-gradient(135deg, var(--marine), var(--bleu-profond));
+}
+
+.budget-amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.used {
+  font-family: Georgia, serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--marine);
+}
+.limit {
+  font-size: 14px;
+  color: var(--texte-doux);
+}
+
+.bar {
+  height: 10px;
+  background: var(--bleu-brume);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--bleu-profond), var(--bleu-moyen));
+  transition: width 0.5s ease;
+}
+
+.bar-fill.warn {
+  background: linear-gradient(90deg, var(--or), var(--alerte));
+}
+
+.budget-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+}
+.rest {
+  font-size: 13px;
+  color: var(--texte-doux);
+}

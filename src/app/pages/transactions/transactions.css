@@ -1,0 +1,51 @@
+.page-head h1 i {
+  color: var(--bleu-moyen);
+}
+
+.toolbar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.search {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search i {
+  position: absolute;
+  left: 16px;
+  color: var(--bleu-doux);
+}
+
+.search input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1.5px solid var(--bleu-brume);
+  border-radius: 26px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  background: var(--blanc);
+  transition: border-color 0.2s;
+}
+
+.search input:focus {
+  border-color: var(--bleu-moyen);
+}
+
+.toolbar select {
+  padding: 12px 18px;
+  border: 1.5px solid var(--bleu-brume);
+  border-radius: 26px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  background: var(--blanc);
+  color: var(--texte);
+  cursor: pointer;
+}

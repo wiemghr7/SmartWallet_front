@@ -1,0 +1,102 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-people"></i> Utilisateurs</h1>
+    <p>Gérez les comptes de la plateforme</p>
+  </div>
+</div>
+
+<div class="grid-3" style="margin-bottom: 20px">
+  <div class="panel kpi">
+    <div class="kpi-icon"><i class="bi bi-people"></i></div>
+    <span class="kpi-value">{{ utilisateurs.length }}</span>
+    <span class="kpi-label">Utilisateurs au total</span>
+  </div>
+  <div class="panel kpi">
+    <div class="kpi-icon"><i class="bi bi-person-check"></i></div>
+    <span class="kpi-value">{{ actifs() }}</span>
+    <span class="kpi-label">Comptes actifs</span>
+  </div>
+  <div class="panel kpi">
+    <div class="kpi-icon"><i class="bi bi-person-dash"></i></div>
+    <span class="kpi-value">{{ utilisateurs.length - actifs() }}</span>
+    <span class="kpi-label">Comptes suspendus</span>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2><i class="bi bi-list-ul"></i> Liste des utilisateurs</h2>
+    <span class="count">{{ utilisateurs.length }}</span>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nom complet</th>
+        <th>Email</th>
+        <th class="right">Revenu</th>
+        <th>Statut</th>
+        <th class="right">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (u of utilisateurs; track u.id) {
+        <tr>
+          <td>
+            <strong>{{ u.prenom }} {{ u.nom }}</strong>
+          </td>
+          <td>{{ u.email || '—' }}</td>
+          <td class="right">{{ u.revenuMensuel }} DT</td>
+          <td>
+            @if (u.estActif) {
+              <span class="badge income">Actif</span>
+            } @else {
+              <span class="badge expense">Suspendu</span>
+            }
+          </td>
+          <td class="right">
+            @if (u.estActif) {
+              <button class="btn-suspend" (click)="demanderBascule(u)">
+                <i class="bi bi-pause-circle"></i> Suspendre
+              </button>
+            } @else {
+              <button class="btn-activer" (click)="demanderBascule(u)">
+                <i class="bi bi-play-circle"></i> Activer
+              </button>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- CONFIRMATION -->
+@if (confirmationOuverte && userCible) {
+  <div class="overlay" (click)="annuler()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone">
+          @if (userCible.estActif) {
+            <i class="bi bi-pause-circle"></i>
+          } @else {
+            <i class="bi bi-play-circle"></i>
+          }
+        </div>
+        @if (userCible.estActif) {
+          <h2>Suspendre ce compte ?</h2>
+          <p>{{ userCible.prenom }} {{ userCible.nom }} ne pourra plus se connecter.</p>
+        } @else {
+          <h2>Activer ce compte ?</h2>
+          <p>{{ userCible.prenom }} {{ userCible.nom }} pourra de nouveau se connecter.</p>
+        }
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annuler()">Annuler</button>
+        <button class="btn-main" (click)="confirmer()">
+          <i class="bi bi-check2"></i> Confirmer
+        </button>
+      </div>
+    </div>
+  </div>
+}

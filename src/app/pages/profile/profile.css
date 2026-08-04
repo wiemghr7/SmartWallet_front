@@ -1,0 +1,50 @@
+.page-head h1 i {
+  color: var(--bleu-profond);
+}
+.panel-head {
+  background: linear-gradient(135deg, var(--marine), var(--bleu-profond));
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.form-stack .row {
+  display: flex;
+  gap: 14px;
+}
+.form-stack .row .field {
+  flex: 1;
+}
+.form-stack .field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.form-stack label {
+  font-size: 13px;
+  color: var(--bleu-profond);
+  font-weight: 500;
+}
+
+.form-stack input {
+  padding: 12px 15px;
+  border: 1.5px solid var(--bleu-brume);
+  border-radius: 14px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.form-stack input:focus {
+  border-color: var(--bleu-moyen);
+  box-shadow: 0 0 0 4px rgba(127, 176, 217, 0.2);
+}
+
+.form-stack .btn-main {
+  align-self: flex-start;
+  margin-top: 6px;
+}

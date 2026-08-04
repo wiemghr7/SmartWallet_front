@@ -1,0 +1,29 @@
+.page-head h1 i {
+  color: var(--bleu-doux);
+}
+
+.toolbar {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.toolbar select {
+  padding: 12px 20px;
+  border: 1.5px solid var(--bleu-brume);
+  border-radius: 26px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  background: var(--blanc);
+  color: var(--texte);
+  cursor: pointer;
+}
+
+.panel-head {
+  background: linear-gradient(135deg, var(--bleu-moyen), var(--bleu-doux));
+}
+.empty i {
+  opacity: 0.5;
+}

@@ -1,0 +1,62 @@
+.page-head h1 i {
+  color: var(--marine);
+}
+.panel-head {
+  background: linear-gradient(135deg, #12283f, var(--marine-clair));
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 30px 20px;
+}
+
+.kpi-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--marine), var(--bleu-profond));
+  color: var(--blanc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-family: Georgia, serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--marine);
+}
+.kpi-label {
+  font-size: 13px;
+  color: var(--texte-doux);
+}
+
+.btn-small {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(184, 213, 236, 0.4);
+  color: var(--blanc);
+  padding: 7px 15px;
+  border-radius: 18px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-small:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.cat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

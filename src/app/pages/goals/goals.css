@@ -1,0 +1,52 @@
+.page-head h1 i {
+  color: var(--succes);
+}
+
+.panel-head {
+  background: linear-gradient(135deg, var(--bleu-profond), var(--bleu-doux));
+}
+.panel-body {
+  padding: 26px 24px;
+}
+
+.budget-amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.used {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--succes);
+}
+.limit {
+  font-size: 15px;
+  color: var(--texte-doux);
+}
+
+.bar {
+  height: 12px;
+  background: var(--bleu-brume);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--succes), #5fb897);
+  transition: width 0.6s ease;
+}
+
+.budget-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+.rest {
+  font-size: 13px;
+  color: var(--texte-doux);
+}

@@ -1,0 +1,137 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-tags"></i> Catégories globales</h1>
+    <p>Le catalogue proposé à tous les utilisateurs</p>
+  </div>
+  <button class="btn-main" (click)="ouvrirAjout()">
+    <i class="bi bi-plus-circle"></i> Nouvelle catégorie
+  </button>
+</div>
+
+<div class="panel">
+  <div class="panel-head">
+    <h2><i class="bi bi-collection"></i> Catalogue</h2>
+    <span class="count">{{ categories.length }} catégories</span>
+  </div>
+
+  @if (categories.length === 0) {
+    <div class="panel-body empty">
+      <i class="bi bi-tags"></i>
+      <span>Aucune catégorie. Créez-en une pour commencer.</span>
+    </div>
+  } @else {
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Type</th>
+          <th class="right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (cat of categories; track cat.id) {
+          <tr>
+            <td>
+              <strong>{{ cat.nom }}</strong>
+            </td>
+            <td>
+              @if (cat.type === 'REVENU') {
+                <span class="badge income">Revenu</span>
+              } @else {
+                <span class="badge expense">Dépense</span>
+              }
+            </td>
+            <td class="right">
+              <button class="icon-act" (click)="editer(cat)"><i class="bi bi-pencil"></i></button>
+              <button class="icon-act danger" (click)="demanderSuppression(cat.id)">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+<!-- MODALE AJOUT / ÉDITION -->
+@if (modaleOuverte) {
+  <div class="overlay" (click)="fermerModale()">
+    <div class="modale" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2>
+          <i class="bi bi-tag"></i>
+          @if (idEnEdition) {
+            Modifier la catégorie
+          } @else {
+            Nouvelle catégorie
+          }
+        </h2>
+        <button class="modale-fermer" (click)="fermerModale()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="modale-body">
+        <div class="champ">
+          <label>Nom de la catégorie</label>
+          <input
+            type="text"
+            placeholder="Ex : Alimentation"
+            #champNom
+            [value]="categorieEnEdition()?.nom || ''"
+          />
+        </div>
+
+        <div class="champ">
+          <label>Type</label>
+          <select #champType>
+            <option value="">Choisir...</option>
+            <option value="DEPENSE" [selected]="categorieEnEdition()?.type === 'DEPENSE'">
+              Dépense
+            </option>
+            <option value="REVENU" [selected]="categorieEnEdition()?.type === 'REVENU'">
+              Revenu
+            </option>
+          </select>
+        </div>
+
+        @if (erreur) {
+          <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreur }}</div>
+        }
+      </div>
+
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerModale()">Annuler</button>
+        <button
+          class="btn-main"
+          [disabled]="chargement"
+          (click)="valider(champNom.value, champType.value)"
+        >
+          @if (chargement) {
+            <i class="bi bi-arrow-repeat"></i> Enregistrement...
+          } @else {
+            <i class="bi bi-check2"></i> Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- CONFIRMATION SUPPRESSION -->
+@if (confirmationOuverte) {
+  <div class="overlay" (click)="annulerSuppression()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
+        <h2>Supprimer cette catégorie ?</h2>
+        <p>Elle ne sera plus proposée aux utilisateurs.</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn-danger" (click)="confirmerSuppression()">
+          <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,40 @@
+<div class="admin-app">
+  <header class="admin-navbar">
+    <div class="nav-left">
+      <span class="brand">
+        <i class="bi bi-shield-lock-fill"></i>
+        Smart Wallet <span class="tag">Admin</span>
+      </span>
+
+      <nav class="nav-links">
+        <a routerLink="/admin/dashboard" routerLinkActive="active">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+        <a routerLink="/admin/users" routerLinkActive="active">
+          <i class="bi bi-people"></i> Utilisateurs
+        </a>
+        <a routerLink="/admin/categories" routerLinkActive="active">
+          <i class="bi bi-tags"></i> Catégories
+        </a>
+        <a routerLink="/admin/stats" routerLinkActive="active">
+          <i class="bi bi-bar-chart-line"></i> Statistiques
+        </a>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <a routerLink="/login" class="btn-logout">
+        <i class="bi bi-box-arrow-right"></i> Déconnexion
+      </a>
+    </div>
+  </header>
+
+  <main class="admin-body">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="admin-footer">
+    <span><i class="bi bi-shield-lock"></i> Espace Administration</span>
+    <span>© 2026 Smart Wallet</span>
+  </footer>
+</div>

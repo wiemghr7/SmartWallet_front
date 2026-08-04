@@ -1,0 +1,136 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1b3a5c 0%, #2d5580 50%, #4a7fb5 100%);
+  padding: 30px 20px;
+}
+
+.auth-card {
+  background: #ffffff;
+  width: 100%;
+  max-width: 470px;
+  padding: 38px 36px;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(27, 58, 92, 0.25);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.auth-header h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  color: #1b3a5c;
+  font-weight: 600;
+}
+
+.auth-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #7a8fa6;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+}
+
+.row .field {
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 13px;
+  color: #2d5580;
+  font-weight: 500;
+}
+
+.field input {
+  padding: 11px 14px;
+  border: 1px solid #c5dcf0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.field input:focus {
+  border-color: #4a7fb5;
+  box-shadow: 0 0 0 3px rgba(143, 184, 221, 0.25);
+}
+
+.btn-primary {
+  margin-top: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2d5580, #4a7fb5);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.1s;
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.auth-footer {
+  margin: 22px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: #7a8fa6;
+}
+
+.auth-footer a {
+  color: #2d5580;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+.auth-card.wide {
+  max-width: 520px;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.row .field {
+  flex: 1;
+}
+
+.row .field input {
+  width: 100%;
+}

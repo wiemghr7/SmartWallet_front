@@ -1,0 +1,143 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-pie-chart"></i> Budgets</h1>
+    <p>Fixez vos limites de dépenses par catégorie</p>
+  </div>
+  <button class="btn-main" (click)="ouvrirAjout()">
+    <i class="bi bi-plus-circle"></i> Nouveau budget
+  </button>
+</div>
+
+@if (budgets.length === 0) {
+  <div class="panel">
+    <div class="panel-body empty">
+      <i class="bi bi-pie-chart"></i>
+      <span>Aucun budget défini. Créez-en un pour suivre vos dépenses.</span>
+    </div>
+  </div>
+} @else {
+  <div class="grid-3">
+    @for (b of budgets; track b.id) {
+      <div class="panel">
+        <div class="panel-head">
+          <h2><i class="bi bi-tag"></i> {{ b.categorie?.nom || 'Catégorie' }}</h2>
+          <div>
+            <button class="icon-act" (click)="editer(b)"><i class="bi bi-pencil"></i></button>
+            <button class="icon-act danger" (click)="demanderSuppression(b.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="budget-amounts">
+            <span class="used">{{ b.utilisationActuelle }} DT</span>
+            <span class="limit">/ {{ b.limiteMensuelle }} DT</span>
+          </div>
+          <div class="bar">
+            <div
+              class="bar-fill"
+              [class]="'niveau-' + niveau(b)"
+              [style.width.%]="pourcentage(b)"
+            ></div>
+          </div>
+          <div class="budget-foot">
+            <span class="badge" [class]="'badge-' + niveau(b)">
+              @if (depasse(b)) {
+                {{ pourcentage(b) }} % — Dépassé !
+              } @else {
+                {{ pourcentage(b) }} % utilisé
+              }
+            </span>
+            <span class="rest">
+              @if (reste(b) >= 0) {
+                Reste {{ reste(b) }} DT
+              } @else {
+                Dépassé de {{ -reste(b) }} DT
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- MODALE AJOUT / ÉDITION -->
+@if (modaleOuverte) {
+  <div class="overlay" (click)="fermerModale()">
+    <div class="modale" (click)="$event.stopPropagation()">
+      <div class="modale-head">
+        <h2>
+          <i class="bi bi-pie-chart"></i>
+          @if (idEnEdition) {
+            Modifier le budget
+          } @else {
+            Nouveau budget
+          }
+        </h2>
+        <button class="modale-fermer" (click)="fermerModale()"><i class="bi bi-x-lg"></i></button>
+      </div>
+
+      <div class="modale-body">
+        <div class="champ">
+          <label>Catégorie</label>
+          <div class="cat-choix">
+            @for (cat of categoriesDepense; track cat.id) {
+              <button
+                class="cat-pastille"
+                [class.actif]="categorieChoisieId === cat.id"
+                (click)="choisirCategorie(cat.id)"
+              >
+                {{ cat.nom }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="champ">
+          <label>Limite mensuelle (DT)</label>
+          <input
+            type="number"
+            placeholder="Ex : 300"
+            #champLimite
+            [value]="budgetEnEdition()?.limiteMensuelle || ''"
+          />
+        </div>
+
+        @if (erreur) {
+          <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreur }}</div>
+        }
+      </div>
+
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="fermerModale()">Annuler</button>
+        <button class="btn-main" [disabled]="chargement" (click)="valider(champLimite.value)">
+          @if (chargement) {
+            <i class="bi bi-arrow-repeat"></i> Enregistrement...
+          } @else {
+            <i class="bi bi-check2"></i> Enregistrer
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- CONFIRMATION SUPPRESSION -->
+@if (confirmationOuverte) {
+  <div class="overlay" (click)="annulerSuppression()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
+        <h2>Supprimer ce budget ?</h2>
+        <p>Cette action est définitive.</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
+        <button class="btn-danger" (click)="confirmerSuppression()">
+          <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
