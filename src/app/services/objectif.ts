@@ -7,7 +7,9 @@ export interface Objectif {
   nom: string;
   montantCible: number;
   montantActuel: number;
-  dateLimite: string | null;
+  dateLimite: string;
+  atteint: boolean;
+  expire: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,6 +28,10 @@ export class ObjectifService {
 
   modifier(id: number, data: any): Observable<Objectif> {
     return this.http.put<Objectif>(`${this.apiUrl}/${id}`, data);
+  }
+
+  prolonger(id: number, dateLimite: string): Observable<Objectif> {
+    return this.http.put<Objectif>(`${this.apiUrl}/${id}/prolonger`, { dateLimite });
   }
 
   supprimer(id: number): Observable<any> {

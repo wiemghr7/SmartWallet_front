@@ -6,11 +6,12 @@ export interface Stats {
   totalUtilisateurs: number;
   utilisateursActifs: number;
   utilisateursSuspendus: number;
-  totalTransactions: number;
-  totalRevenus: number;
-  totalDepenses: number;
   totalCategories: number;
   totalBudgets: number;
+  parVille: any;
+  parGenre: any;
+  parTrancheAge: any;
+  inscriptionsParMois: any;
 }
 
 @Injectable({ providedIn: 'root' })

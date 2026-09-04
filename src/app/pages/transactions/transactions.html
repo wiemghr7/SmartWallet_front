@@ -8,16 +8,82 @@
   </button>
 </div>
 
+<!-- BARRE DE FILTRES -->
+<div class="filtres-bar">
+  <div class="filtre-groupe">
+    <span class="filtre-label"><i class="bi bi-funnel"></i> Type</span>
+    <div class="type-select">
+      <button type="button" class="type-select-btn" (click)="basculerListeType()">
+        <span>{{ labelTypeChoisi() }}</span>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      @if (listeTypeOuverte) {
+        <div class="type-liste">
+          @for (opt of optionsType; track opt.valeur) {
+            <button
+              type="button"
+              class="type-option"
+              [class.actif]="filtreType === opt.valeur"
+              (click)="choisirFiltreType(opt.valeur)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </div>
+  <div class="filtre-groupe">
+    <span class="filtre-label"><i class="bi bi-calendar3"></i> Mois</span>
+    <div class="mois-select">
+      <button type="button" class="type-select-btn" (click)="basculerListeMois()">
+        <span>{{ labelMoisChoisi() }}</span>
+        <i class="bi bi-chevron-down"></i>
+      </button>
+      @if (listeMoisOuverte) {
+        <div class="mois-panneau">
+          <div class="mois-annee-nav">
+            <button type="button" (click)="changerAnnee(-1)">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <span>{{ anneeAffichee }}</span>
+            <button type="button" (click)="changerAnnee(1)">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+          <div class="mois-grille">
+            @for (nom of nomsMois; track $index) {
+              <button
+                type="button"
+                class="mois-case"
+                [class.actif]="moisEstActif($index)"
+                (click)="choisirMois($index)"
+              >
+                {{ nom }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  @if (filtreType !== 'TOUT' || filtreMois) {
+    <button class="filtre-reset" (click)="reinitialiserFiltres()">
+      <i class="bi bi-x-circle"></i> Réinitialiser
+    </button>
+  }
+</div>
+
 <div class="panel">
   <div class="panel-head">
     <h2><i class="bi bi-list-ul"></i> Historique</h2>
-    <span class="count">{{ transactions.length }} transactions</span>
+    <span class="count">{{ transactionsFiltrees().length }} transaction(s)</span>
   </div>
 
-  @if (transactions.length === 0) {
+  @if (transactionsFiltrees().length === 0) {
     <div class="panel-body empty">
       <i class="bi bi-inbox"></i>
-      <span>Aucune transaction pour le moment</span>
+      <span>Aucune transaction ne correspond aux filtres</span>
     </div>
   } @else {
     <table class="table">
@@ -32,7 +98,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (t of transactions; track t.id) {
+        @for (t of transactionsFiltrees(); track t.id) {
           <tr>
             <td>{{ t.date }}</td>
             <td>
@@ -65,10 +131,14 @@
               {{ t.montant }} DT
             </td>
             <td class="right">
-              <button class="icon-act" (click)="editer(t)"><i class="bi bi-pencil"></i></button>
-              <button class="icon-act danger" (click)="demanderSuppression(t.id)">
-                <i class="bi bi-trash"></i>
-              </button>
+              @if (t.categorie && t.categorie.nom.startsWith('Objectif : ')) {
+                <span class="chip"><i class="bi bi-piggy-bank"></i> Épargne</span>
+              } @else {
+                <button class="icon-act" (click)="editer(t)"><i class="bi bi-pencil"></i></button>
+                <button class="icon-act danger" (click)="demanderSuppression(t.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              }
             </td>
           </tr>
         }
@@ -217,7 +287,6 @@
     </div>
   </div>
 }
-
 <!-- CONFIRMATION SUPPRESSION -->
 @if (confirmationOuverte) {
   <div class="overlay" (click)="annulerSuppression()">
@@ -231,6 +300,28 @@
         <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
         <button class="btn-danger" (click)="confirmerSuppression()">
           <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- CONFIRMATION DÉPASSEMENT BUDGET -->
+@if (confirmationBudgetOuverte) {
+  <div class="overlay" (click)="annulerDepassement()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone" style="background: #f5ead6; color: #b07d2e">
+          <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h2>Dépassement de budget</h2>
+        <p>{{ messageDepassement }}</p>
+        <p style="margin-top: 8px">Voulez-vous quand même enregistrer cette dépense ?</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-secondaire" (click)="annulerDepassement()">Annuler</button>
+        <button class="btn-main" (click)="confirmerDepassement()">
+          <i class="bi bi-check2"></i> Oui, enregistrer
         </button>
       </div>
     </div>

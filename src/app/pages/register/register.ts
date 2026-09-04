@@ -11,12 +11,78 @@ import { AuthService } from '../../services/auth';
 export class Register {
   erreur = '';
   chargement = false;
+  genreChoisi = '';
 
+  // Liste des villes
+  villes = [
+    'Ariana',
+    'Béja',
+    'Ben Arous',
+    'Bizerte',
+    'Gabès',
+    'Gafsa',
+    'Jendouba',
+    'Kairouan',
+    'Kasserine',
+    'Kébili',
+    'Le Kef',
+    'Mahdia',
+    'La Manouba',
+    'Médenine',
+    'Monastir',
+    'Nabeul',
+    'Sfax',
+    'Sidi Bouzid',
+    'Siliana',
+    'Sousse',
+    'Tataouine',
+    'Tozeur',
+    'Tunis',
+    'Zaghouan',
+  ];
+  villeChoisie = '';
+  listeVillesOuverte = false;
+  photoChoisie = '';
   constructor(
     private authService: AuthService,
     private router: Router,
     private cd: ChangeDetectorRef,
   ) {}
+  choisirPhoto(event: any) {
+    const fichier = event.target.files[0];
+    if (!fichier) return;
+    if (!fichier.type.startsWith('image/')) {
+      this.erreur = 'Veuillez choisir une image';
+      this.cd.detectChanges();
+      return;
+    }
+    if (fichier.size > 2 * 1024 * 1024) {
+      this.erreur = "L'image est trop lourde (max 2 Mo)";
+      this.cd.detectChanges();
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.photoChoisie = reader.result as string;
+      this.cd.detectChanges();
+    };
+    reader.readAsDataURL(fichier);
+  }
+  choisirGenre(genre: string) {
+    this.genreChoisi = genre;
+    this.cd.detectChanges();
+  }
+
+  basculerListeVilles() {
+    this.listeVillesOuverte = !this.listeVillesOuverte;
+    this.cd.detectChanges();
+  }
+
+  choisirVille(ville: string) {
+    this.villeChoisie = ville;
+    this.listeVillesOuverte = false;
+    this.cd.detectChanges();
+  }
 
   sInscrire(
     nom: string,
@@ -26,6 +92,7 @@ export class Register {
     confirmMotDePasse: string,
     revenuMensuel: string,
     soldeInitial: string,
+    dateNaissance: string,
   ) {
     this.erreur = '';
 
@@ -76,6 +143,10 @@ export class Register {
       motDePasse,
       revenuMensuel: revenu,
       soldeInitial: solde,
+      ville: this.villeChoisie || null,
+      dateNaissance: dateNaissance || null,
+      genre: this.genreChoisi || null,
+      photo: this.photoChoisie || null,
     };
 
     this.authService.register(donnees).subscribe({

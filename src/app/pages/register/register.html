@@ -6,6 +6,19 @@
     <p class="subtitle">Commencez à gérer vos finances</p>
 
     <div class="auth-form">
+      <div class="photo-inscription">
+        <div class="photo-apercu">
+          @if (photoChoisie) {
+            <img [src]="photoChoisie" alt="Photo" />
+          } @else {
+            <i class="bi bi-person-circle"></i>
+          }
+        </div>
+        <label class="btn-secondaire photo-btn">
+          <i class="bi bi-camera"></i> Photo de profil (optionnel)
+          <input type="file" accept="image/*" (change)="choisirPhoto($event)" hidden />
+        </label>
+      </div>
       <div class="row">
         <div class="field">
           <label><i class="bi bi-person"></i> Nom</label>
@@ -44,6 +57,60 @@
         </div>
       </div>
 
+      <div class="row">
+        <div class="field">
+          <label><i class="bi bi-geo-alt"></i> Ville (gouvernorat)</label>
+          <div class="ville-select">
+            <button type="button" class="ville-bouton" (click)="basculerListeVilles()">
+              <span [class.placeholder]="!villeChoisie">
+                {{ villeChoisie || 'Choisir...' }}
+              </span>
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            @if (listeVillesOuverte) {
+              <div class="ville-liste">
+                @for (v of villes; track v) {
+                  <button
+                    type="button"
+                    class="ville-option"
+                    [class.actif]="villeChoisie === v"
+                    (click)="choisirVille(v)"
+                  >
+                    {{ v }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div class="field">
+          <label><i class="bi bi-calendar-event"></i> Date de naissance</label>
+          <input type="date" #champNaissance />
+        </div>
+      </div>
+
+      <div class="field">
+        <label><i class="bi bi-gender-ambiguous"></i> Genre</label>
+        <div class="genre-choix">
+          <button
+            type="button"
+            class="genre-btn"
+            [class.actif]="genreChoisi === 'HOMME'"
+            (click)="choisirGenre('HOMME')"
+          >
+            <i class="bi bi-gender-male"></i> Homme
+          </button>
+          <button
+            type="button"
+            class="genre-btn"
+            [class.actif]="genreChoisi === 'FEMME'"
+            (click)="choisirGenre('FEMME')"
+          >
+            <i class="bi bi-gender-female"></i> Femme
+          </button>
+        </div>
+      </div>
+
       @if (erreur) {
         <div class="msg-erreur"><i class="bi bi-exclamation-circle"></i> {{ erreur }}</div>
       }
@@ -60,7 +127,8 @@
             champMdp.value,
             champConfirm.value,
             champRevenu.value,
-            champSolde.value
+            champSolde.value,
+            champNaissance.value
           )
         "
       >

@@ -1,0 +1,217 @@
+<div class="page-head">
+  <div>
+    <h1><i class="bi bi-robot"></i> Assistant financier IA</h1>
+    <p>Analyse intelligente de vos finances et conseils personnalisés</p>
+  </div>
+  <button class="btn-main" (click)="charger()">
+    <i class="bi bi-arrow-clockwise"></i> Actualiser
+  </button>
+</div>
+
+@if (chargement) {
+  <div class="panel">
+    <div class="panel-body empty">
+      <i class="bi bi-cpu"></i>
+      <span>L'IA analyse vos données...</span>
+    </div>
+  </div>
+} @else {
+  <!-- ===== SCORE DE SANTÉ FINANCIÈRE ===== -->
+  @if (rapport && !rapport.erreur) {
+    <div class="panel">
+      <div class="panel-body score-zone">
+        <div
+          class="score-cercle"
+          [style.background]="
+            'conic-gradient(' + couleurScore() + ' ' + rapport.score * 3.6 + 'deg, #eef4fa 0deg)'
+          "
+        >
+          <div class="score-inner">
+            <span class="score-valeur" [style.color]="couleurScore()">{{ rapport.score }}</span>
+            <span class="score-sur">/ 100</span>
+          </div>
+        </div>
+        <div class="score-info">
+          <h2>{{ rapport.scoreLabel }}</h2>
+          <p>
+            Score calculé par l'IA à partir de votre taux d'épargne, votre solde et vos budgets.
+          </p>
+          <div class="score-mini-stats">
+            <div class="mini-stat">
+              <span class="mini-label">Taux d'épargne</span>
+              <span class="mini-valeur">{{ rapport.tauxEpargne }}%</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-label">Bilan du mois</span>
+              <span class="mini-valeur" [class.rouge]="rapport.bilan < 0"
+                >{{ rapport.bilan }} DT</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ===== PRÉVISION ===== -->
+  @if (prevision && prevision.possible) {
+    @if (soldeNegatif()) {
+      <div class="alerte-prevision">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+          <strong>Attention : solde négatif prévu</strong>
+          <span
+            >Si vos habitudes continuent, votre solde pourrait devenir négatif le mois
+            prochain.</span
+          >
+        </div>
+      </div>
+    }
+    <div class="grid-2">
+      <div class="panel kpi-prevision">
+        <div class="kpi-prevision-icon depense"><i class="bi bi-graph-down-arrow"></i></div>
+        <span class="kpi-prevision-label">Dépenses prévues le mois prochain</span>
+        <span class="kpi-prevision-value">{{ prevision.depensePrevue }} DT</span>
+        <span class="prevision-confiance"
+          >Confiance : {{ prevision.confiance }} ({{ prevision.nbMoisAnalyses }} mois
+          analysés)</span
+        >
+      </div>
+      <div class="panel kpi-prevision">
+        <div
+          class="kpi-prevision-icon"
+          [class.negatif]="soldeNegatif()"
+          [class.positif]="!soldeNegatif()"
+        >
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <span class="kpi-prevision-label">Solde prévu en fin de mois</span>
+        <span class="kpi-prevision-value" [class.rouge]="soldeNegatif()"
+          >{{ prevision.soldePrevu }} DT</span
+        >
+        <span class="prevision-confiance">
+          @if (prevision.tendance === 'hausse') {
+            <i class="bi bi-arrow-up"></i> Dépenses en hausse
+          } @else if (prevision.tendance === 'baisse') {
+            <i class="bi bi-arrow-down"></i> Dépenses en baisse
+          } @else {
+            <i class="bi bi-dash"></i> Dépenses stables
+          }
+        </span>
+      </div>
+    </div>
+  }
+
+  <!-- ===== RAPPORT DU MOIS ===== -->
+  @if (rapport && !rapport.erreur) {
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-file-earmark-text"></i> Rapport du mois</h2>
+      </div>
+      <div class="panel-body">
+        <div class="rapport-grille">
+          <div class="rapport-item">
+            <i class="bi bi-arrow-down-circle" style="color: var(--succes)"></i>
+            <span class="rapport-label">Revenus</span>
+            <span class="rapport-valeur">{{ rapport.revenusMois }} DT</span>
+          </div>
+          <div class="rapport-item">
+            <i class="bi bi-arrow-up-circle" style="color: var(--alerte)"></i>
+            <span class="rapport-label">Dépenses</span>
+            <span class="rapport-valeur">{{ rapport.depensesMois }} DT</span>
+          </div>
+          @if (rapport.plusGrosseCategorie) {
+            <div class="rapport-item">
+              <i class="bi bi-pie-chart-fill" style="color: var(--bleu-moyen)"></i>
+              <span class="rapport-label">Plus grosse dépense</span>
+              <span class="rapport-valeur"
+                >{{ rapport.plusGrosseCategorie }} ({{ rapport.plusGrossePart }}%)</span
+              >
+            </div>
+          }
+          @if (rapport.variationDepenses !== null) {
+            <div class="rapport-item">
+              <i
+                class="bi bi-graph-up-arrow"
+                [style.color]="rapport.variationDepenses > 0 ? 'var(--alerte)' : 'var(--succes)'"
+              ></i>
+              <span class="rapport-label">vs mois dernier</span>
+              <span class="rapport-valeur">
+                @if (rapport.variationDepenses > 0) {
+                  +{{ rapport.variationDepenses }}%
+                } @else {
+                  {{ rapport.variationDepenses }}%
+                }
+              </span>
+            </div>
+          }
+        </div>
+
+        <!-- Points forts et faibles -->
+        @if (rapport.pointsForts?.length > 0 || rapport.pointsFaibles?.length > 0) {
+          <div class="points-zone">
+            @if (rapport.pointsForts?.length > 0) {
+              <div class="points-col">
+                <h3 class="points-titre fort"><i class="bi bi-hand-thumbs-up"></i> Points forts</h3>
+                @for (p of rapport.pointsForts; track $index) {
+                  <div class="point-ligne fort"><i class="bi bi-check-circle"></i> {{ p }}</div>
+                }
+              </div>
+            }
+            @if (rapport.pointsFaibles?.length > 0) {
+              <div class="points-col">
+                <h3 class="points-titre faible">
+                  <i class="bi bi-exclamation-circle"></i> À améliorer
+                </h3>
+                @for (p of rapport.pointsFaibles; track $index) {
+                  <div class="point-ligne faible"><i class="bi bi-dot"></i> {{ p }}</div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ===== CONSEILS DE L'IA ===== -->
+    @if (rapport.conseils?.length > 0) {
+      <div class="panel">
+        <div class="panel-head">
+          <h2><i class="bi bi-lightbulb-fill"></i> Conseils personnalisés</h2>
+        </div>
+        <div class="panel-body">
+          <div class="conseils-liste">
+            @for (c of rapport.conseils; track $index) {
+              <div class="conseil-carte">
+                <div class="conseil-icone"><i class="bi {{ c.icone }}"></i></div>
+                <div class="conseil-contenu">
+                  <strong>{{ c.titre }}</strong>
+                  <span>{{ c.texte }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Note explicative -->
+    <div class="panel">
+      <div class="panel-body note-ia">
+        <i class="bi bi-info-circle"></i>
+        <span
+          >Cette analyse combine un modèle de <strong>régression linéaire</strong> (pour la
+          prévision) et une analyse intelligente de vos habitudes financières. Les conseils sont
+          calculés à partir de vos données réelles.</span
+        >
+      </div>
+    </div>
+  } @else if (rapport && rapport.erreur) {
+    <div class="panel">
+      <div class="panel-body empty">
+        <i class="bi bi-cpu"></i>
+        <span>{{ rapport.message }}</span>
+      </div>
+    </div>
+  }
+}

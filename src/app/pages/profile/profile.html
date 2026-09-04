@@ -16,6 +16,26 @@
       <h2><i class="bi bi-person"></i> Informations personnelles</h2>
     </div>
     <div class="panel-body">
+      <div class="photo-profil-zone">
+        <div class="photo-apercu">
+          @if (photoChoisie) {
+            <img [src]="photoChoisie" alt="Photo de profil" />
+          } @else {
+            <i class="bi bi-person-circle"></i>
+          }
+        </div>
+        <div class="photo-actions">
+          <label class="btn-secondaire photo-btn">
+            <i class="bi bi-camera"></i> Choisir une photo
+            <input type="file" accept="image/*" (change)="choisirPhoto($event)" hidden />
+          </label>
+          @if (photoChoisie) {
+            <button class="btn-supprimer-photo" (click)="supprimerPhoto()">
+              <i class="bi bi-trash"></i> Retirer
+            </button>
+          }
+        </div>
+      </div>
       <div class="grid-2">
         <div class="champ">
           <label>Nom</label>
@@ -30,6 +50,85 @@
       <div class="champ" style="margin-top: 16px">
         <label>Email (non modifiable)</label>
         <input type="email" [value]="profil.email" disabled />
+      </div>
+
+      <div class="grid-2" style="margin-top: 16px">
+        <div class="champ">
+          <label>Ville (gouvernorat)</label>
+          <div class="ville-select">
+            <button type="button" class="ville-bouton" (click)="basculerListeVilles()">
+              <span [class.placeholder]="!villeChoisie">{{ villeChoisie || 'Choisir...' }}</span>
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            @if (listeVillesOuverte) {
+              <div class="ville-liste">
+                @for (v of villes; track v) {
+                  <button
+                    type="button"
+                    class="ville-option"
+                    [class.actif]="villeChoisie === v"
+                    (click)="choisirVille(v)"
+                  >
+                    {{ v }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+        <div class="champ">
+          <label>Date de naissance</label>
+          <div class="calendrier-select">
+            <button type="button" class="type-select-btn" (click)="basculerCalendrier()">
+              <span>{{ labelDateNaissance() }}</span>
+              <i class="bi bi-calendar-event"></i>
+            </button>
+            @if (calendrierOuvert) {
+              <div class="calendrier-panneau">
+                <div class="cal-nav">
+                  <button
+                    type="button"
+                    (click)="changerAnneeCalendrier(-1)"
+                    title="Année précédente"
+                  >
+                    <i class="bi bi-chevron-double-left"></i>
+                  </button>
+                  <button type="button" (click)="changerMoisCalendrier(-1)">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <span>{{ nomsMoisComplets[moisAffiche] }} {{ anneeAffichee }}</span>
+                  <button type="button" (click)="changerMoisCalendrier(1)">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                  <button type="button" (click)="changerAnneeCalendrier(1)" title="Année suivante">
+                    <i class="bi bi-chevron-double-right"></i>
+                  </button>
+                </div>
+                <div class="cal-semaine">
+                  @for (j of joursSemaine; track $index) {
+                    <span>{{ j }}</span>
+                  }
+                </div>
+                <div class="cal-grille">
+                  @for (jour of joursDuMois(); track $index) {
+                    @if (jour) {
+                      <button
+                        type="button"
+                        class="cal-jour"
+                        [class.actif]="jourEstActif(jour)"
+                        (click)="choisirJour(jour)"
+                      >
+                        {{ jour }}
+                      </button>
+                    } @else {
+                      <span class="cal-vide"></span>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
       </div>
 
       <div class="champ" style="margin-top: 16px">
@@ -205,13 +304,22 @@
       <div class="modale-body confirme">
         <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
         <h2>Supprimer cette catégorie ?</h2>
-        <p>Les transactions liées perdront cette catégorie.</p>
+        <p>Cette action est définitive.</p>
+        @if (erreurSuppression) {
+          <div class="msg-erreur" style="margin-top: 14px">
+            <i class="bi bi-exclamation-circle"></i> {{ erreurSuppression }}
+          </div>
+        }
       </div>
       <div class="modale-pied">
-        <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
-        <button class="btn-danger" (click)="confirmerSuppression()">
-          <i class="bi bi-trash"></i> Supprimer
-        </button>
+        @if (erreurSuppression) {
+          <button class="btn-secondaire" (click)="annulerSuppression()">Fermer</button>
+        } @else {
+          <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
+          <button class="btn-danger" (click)="confirmerSuppression()">
+            <i class="bi bi-trash"></i> Supprimer
+          </button>
+        }
       </div>
     </div>
   </div>

@@ -6,7 +6,6 @@ export interface DashboardResume {
   soldeTotal: number;
   revenusDuMois: number;
   depensesDuMois: number;
-  dernieresTransactions: any[];
 }
 
 @Injectable({ providedIn: 'root' })

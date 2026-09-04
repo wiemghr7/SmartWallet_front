@@ -7,8 +7,6 @@ export interface UtilisateurAdmin {
   nom: string;
   prenom: string;
   email: string;
-  revenuMensuel: number;
-  soldeInitial: number;
   estActif: boolean;
 }
 

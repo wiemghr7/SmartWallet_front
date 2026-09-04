@@ -8,6 +8,10 @@ export interface Profil {
   prenom: string;
   email: string;
   revenuMensuel: number;
+  ville: string;
+  dateNaissance: string;
+  genre: string;
+  photo: string;
 }
 
 @Injectable({ providedIn: 'root' })

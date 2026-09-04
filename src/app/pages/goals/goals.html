@@ -1,7 +1,7 @@
 <div class="page-head">
   <div>
     <h1><i class="bi bi-trophy"></i> Objectifs d'épargne</h1>
-    <p>Fixez vos objectifs et suivez votre progression</p>
+    <p>Fixez vos objectifs et épargnez via vos transactions</p>
   </div>
   <button class="btn-main" (click)="ouvrirAjout()">
     <i class="bi bi-plus-circle"></i> Nouvel objectif
@@ -16,52 +16,90 @@
     </div>
   </div>
 } @else {
-  <div class="grid-2">
-    @for (o of objectifs; track o.id) {
-      <div class="panel">
-        <div class="panel-head">
-          <h2><i class="bi bi-flag"></i> {{ o.nom }}</h2>
-          <div>
-            <button class="icon-act" (click)="editer(o)"><i class="bi bi-pencil"></i></button>
-            <button class="icon-act danger" (click)="demanderSuppression(o.id)">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="panel-body">
-          <div class="objectif-montants">
-            <span class="objectif-actuel">{{ o.montantActuel }} DT</span>
-            <span class="objectif-cible">/ {{ o.montantCible }} DT</span>
-          </div>
-
-          <div class="bar">
-            <div
-              class="bar-fill"
-              [class.atteint]="atteint(o)"
-              [style.width.%]="pourcentage(o)"
-            ></div>
-          </div>
-
-          <div class="objectif-foot">
-            @if (atteint(o)) {
-              <span class="badge income"
-                ><i class="bi bi-check-circle"></i> Objectif atteint !</span
-              >
-            } @else {
-              <span class="badge">{{ pourcentage(o) }} %</span>
-              <span class="objectif-reste">Encore {{ reste(o) }} DT</span>
+  <!-- OBJECTIFS EN COURS ET EXPIRÉS -->
+  @if (objectifsActifs().length > 0) {
+    <div class="grid-2">
+      @for (o of objectifsActifs(); track o.id) {
+        <div class="panel" [class.panel-expire]="o.expire">
+          <div class="panel-head">
+            <h2><i class="bi bi-flag"></i> {{ o.nom }}</h2>
+            @if (!o.expire) {
+              <div>
+                <button class="icon-act" (click)="editer(o)"><i class="bi bi-pencil"></i></button>
+                <button class="icon-act danger" (click)="demanderSuppression(o.id)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             }
           </div>
-
-          @if (o.dateLimite) {
-            <div class="objectif-date">
-              <i class="bi bi-calendar-event"></i> Échéance : {{ o.dateLimite }}
-            </div>
-          }
+          <div class="panel-body">
+            @if (o.expire) {
+              <!-- ÉTAT EXPIRÉ -->
+              <div class="objectif-montants">
+                <span class="objectif-actuel">{{ o.montantActuel }} DT</span>
+                <span class="objectif-cible">/ {{ o.montantCible }} DT</span>
+              </div>
+              <div class="objectif-expire-alerte">
+                <i class="bi bi-clock-history"></i>
+                <span>La date limite est dépassée ({{ o.dateLimite }})</span>
+              </div>
+              <button class="btn-expire" (click)="ouvrirExpire(o)">
+                <i class="bi bi-exclamation-circle"></i> Gérer cet objectif expiré
+              </button>
+            } @else {
+              <!-- ÉTAT EN COURS -->
+              <div class="objectif-montants">
+                <span class="objectif-actuel">{{ o.montantActuel }} DT</span>
+                <span class="objectif-cible">/ {{ o.montantCible }} DT</span>
+              </div>
+              <div class="bar">
+                <div class="bar-fill" [style.width.%]="pourcentage(o)"></div>
+              </div>
+              <div class="objectif-foot">
+                <span class="badge">{{ pourcentage(o) }} %</span>
+                <span class="objectif-reste">Encore {{ reste(o) }} DT</span>
+              </div>
+              @if (o.dateLimite) {
+                <div class="objectif-date">
+                  <i class="bi bi-calendar-event"></i> Échéance : {{ o.dateLimite }}
+                </div>
+              }
+            }
+          </div>
         </div>
+      }
+    </div>
+  }
+
+  <!-- OBJECTIFS ATTEINTS -->
+  @if (objectifsAtteints().length > 0) {
+    <div class="page-head" style="margin-top: 30px">
+      <div>
+        <h2 style="font-size: 22px; margin: 0; display: flex; align-items: center; gap: 10px">
+          <i class="bi bi-trophy-fill" style="color: var(--succes)"></i> Objectifs atteints
+        </h2>
+        <p style="margin: 4px 0 0">Vos réussites d'épargne 🎉</p>
       </div>
-    }
-  </div>
+    </div>
+    <div class="grid-2">
+      @for (o of objectifsAtteints(); track o.id) {
+        <div class="panel panel-atteint">
+          <div class="panel-head">
+            <h2><i class="bi bi-flag"></i> {{ o.nom }}</h2>
+          </div>
+          <div class="panel-body">
+            <div class="objectif-atteint">
+              <i class="bi bi-trophy-fill"></i>
+              <div>
+                <strong>Objectif atteint ! 🎉</strong>
+                <span>Vous avez épargné {{ o.montantActuel }} DT sur {{ o.montantCible }} DT.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
 }
 
 <!-- MODALE AJOUT / ÉDITION -->
@@ -102,16 +140,6 @@
         </div>
 
         <div class="champ">
-          <label>Déjà épargné (DT)</label>
-          <input
-            type="number"
-            placeholder="Ex : 500"
-            #champActuel
-            [value]="objectifEnEdition()?.montantActuel || ''"
-          />
-        </div>
-
-        <div class="champ">
           <label>Date limite (optionnel)</label>
           <input type="date" #champDate [value]="objectifEnEdition()?.dateLimite || ''" />
         </div>
@@ -126,7 +154,7 @@
         <button
           class="btn-main"
           [disabled]="chargement"
-          (click)="valider(champNom.value, champCible.value, champActuel.value, champDate.value)"
+          (click)="valider(champNom.value, champCible.value, champDate.value)"
         >
           @if (chargement) {
             <i class="bi bi-arrow-repeat"></i> Enregistrement...
@@ -146,12 +174,36 @@
       <div class="modale-body confirme">
         <div class="confirme-icone"><i class="bi bi-exclamation-triangle"></i></div>
         <h2>Supprimer cet objectif ?</h2>
-        <p>Cette action est définitive.</p>
+        <p>L'épargne sera rendue à votre solde. Cette action est définitive.</p>
       </div>
       <div class="modale-pied">
         <button class="btn-secondaire" (click)="annulerSuppression()">Annuler</button>
         <button class="btn-danger" (click)="confirmerSuppression()">
           <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODALE OBJECTIF EXPIRÉ -->
+@if (modaleExpireOuverte && objectifExpire) {
+  <div class="overlay" (click)="fermerExpire()">
+    <div class="modale petite" (click)="$event.stopPropagation()">
+      <div class="modale-body confirme">
+        <div class="confirme-icone" style="background: #f5ead6; color: #b07d2e">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <h2>Objectif expiré</h2>
+        <p>La date limite de « {{ objectifExpire.nom }} » est dépassée.</p>
+        <p style="margin-top: 8px">Voulez-vous prolonger la date limite ?</p>
+      </div>
+      <div class="modale-pied">
+        <button class="btn-danger" (click)="supprimerExpire()">
+          <i class="bi bi-trash"></i> Non, supprimer
+        </button>
+        <button class="btn-main" (click)="prolongerObjectif()">
+          <i class="bi bi-calendar-plus"></i> Oui, prolonger
         </button>
       </div>
     </div>

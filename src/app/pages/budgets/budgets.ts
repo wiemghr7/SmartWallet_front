@@ -64,10 +64,11 @@ export class Budgets implements OnInit {
     return Math.min(100, Math.round((b.utilisationActuelle / b.limiteMensuelle) * 100));
   }
   niveau(b: Budget): string {
-    const p = this.pourcentage(b);
-    if (this.depasse(b) || p > 80) return 'danger'; // rouge
-    if (p >= 50) return 'moyen'; // orange
-    return 'ok'; // vert
+    const p = b.limiteMensuelle > 0 ? (b.utilisationActuelle / b.limiteMensuelle) * 100 : 0;
+    if (p > 100) return 'danger'; // rouge : dépassé
+    if (p >= 80) return 'alerte'; // orange : 80-100%
+    if (p >= 50) return 'moyen'; // bleu : 50-80%
+    return 'ok'; // vert : < 50%
   }
   depasse(b: Budget): boolean {
     return b.utilisationActuelle > b.limiteMensuelle;

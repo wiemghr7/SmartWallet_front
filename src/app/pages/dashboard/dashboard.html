@@ -37,56 +37,83 @@
       <span class="stat-note">Revenus − dépenses</span>
     </div>
   </div>
-
-  <div class="panel">
-    <div class="panel-head">
-      <h2><i class="bi bi-clock-history"></i> Dernières transactions</h2>
-    </div>
-
-    @if (resume.dernieresTransactions.length === 0) {
-      <div class="panel-body empty">
-        <i class="bi bi-inbox"></i>
-        <span>Aucune transaction pour le moment</span>
-      </div>
-    } @else {
-      <div class="panel-body">
-        @for (t of resume.dernieresTransactions; track t.id) {
-          <div class="tx-row">
-            <div class="tx-left">
-              <span class="tx-chip">
-                @if (t.type === 'REVENU') {
-                  <i class="bi bi-arrow-down-circle"></i>
-                } @else {
-                  <i class="bi bi-arrow-up-circle"></i>
-                }
-              </span>
-              <div>
-                <strong>{{ t.categorie?.nom || t.description || 'Transaction' }}</strong>
-                <small>{{ t.date }}</small>
-              </div>
-            </div>
-            <span
-              class="tx-amount"
-              [class.income]="t.type === 'REVENU'"
-              [class.expense]="t.type === 'DEPENSE'"
-            >
-              @if (t.type === 'REVENU') {
-                +
-              } @else {
-                -
-              }
-              {{ t.montant }} DT
-            </span>
-          </div>
-        }
-      </div>
-    }
-  </div>
 } @else {
   <div class="panel">
     <div class="panel-body empty">
       <i class="bi bi-hourglass-split"></i>
       <span>Chargement...</span>
+    </div>
+  </div>
+}
+
+<!-- ===== ANALYSE INTÉGRÉE ===== -->
+@if (analyse) {
+  <div class="page-head" style="margin-top: 30px">
+    <div>
+      <h2 style="font-size: 22px; margin: 0; display: flex; align-items: center; gap: 10px">
+        <i class="bi bi-graph-up"></i> Analyse de vos finances
+      </h2>
+    </div>
+    <div class="filtre-groupe">
+      <span class="filtre-label"><i class="bi bi-calendar3"></i> Mois analysé</span>
+      <div class="mois-select droite">
+        <button type="button" class="type-select-btn" (click)="basculerListeMois()">
+          <span>{{ labelMoisChoisi() }}</span>
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        @if (listeMoisOuverte) {
+          <div class="mois-panneau">
+            <div class="mois-annee-nav">
+              <button type="button" (click)="changerAnnee(-1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <span>{{ anneeAffichee }}</span>
+              <button type="button" (click)="changerAnnee(1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+            <div class="mois-grille">
+              @for (nom of nomsMois; track $index) {
+                <button
+                  type="button"
+                  class="mois-case"
+                  [class.actif]="moisEstActif($index)"
+                  (click)="choisirMois($index)"
+                >
+                  {{ nom }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Camembert dépenses du mois -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2><i class="bi bi-pie-chart-fill"></i> Vos dépenses ce mois-ci</h2>
+    </div>
+    <div class="panel-body">
+      @if (aDesDonnees(analyse.depensesParCategorie)) {
+        <div class="chart-box"><canvas id="chartDepenses"></canvas></div>
+      } @else {
+        <div class="empty">
+          <i class="bi bi-pie-chart"></i>
+          <span>Aucune dépense avec catégorie pour ce mois</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Courbe évolution -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2><i class="bi bi-graph-up-arrow"></i> Évolution sur 6 mois</h2>
+    </div>
+    <div class="panel-body">
+      <div class="chart-box"><canvas id="chartEvolution"></canvas></div>
     </div>
   </div>
 }

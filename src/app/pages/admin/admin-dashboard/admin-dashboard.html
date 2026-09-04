@@ -6,11 +6,12 @@
 </div>
 
 @if (stats) {
+  <!-- Cartes clés : utilisateurs -->
   <div class="grid-3" style="margin-bottom: 20px">
     <div class="panel kpi">
       <div class="kpi-icon"><i class="bi bi-people"></i></div>
       <span class="kpi-value">{{ stats.totalUtilisateurs }}</span>
-      <span class="kpi-label">Utilisateurs</span>
+      <span class="kpi-label">Utilisateurs au total</span>
     </div>
     <div class="panel kpi">
       <div class="kpi-icon"><i class="bi bi-person-check"></i></div>
@@ -18,51 +19,104 @@
       <span class="kpi-label">Comptes actifs</span>
     </div>
     <div class="panel kpi">
-      <div class="kpi-icon"><i class="bi bi-arrow-left-right"></i></div>
-      <span class="kpi-value">{{ stats.totalTransactions }}</span>
-      <span class="kpi-label">Transactions</span>
+      <div class="kpi-icon"><i class="bi bi-person-dash"></i></div>
+      <span class="kpi-value">{{ stats.utilisateursSuspendus }}</span>
+      <span class="kpi-label">Comptes suspendus</span>
     </div>
   </div>
 
+  <!-- Contenu de la plateforme -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2><i class="bi bi-collection"></i> Contenu de la plateforme</h2>
+    </div>
+    <div class="panel-body">
+      <div class="flux-ligne">
+        <span class="flux-label"><i class="bi bi-tags"></i> Catégories globales</span>
+        <span class="flux-val">{{ stats.totalCategories }}</span>
+      </div>
+      <div class="flux-ligne">
+        <span class="flux-label"
+          ><i class="bi bi-pie-chart"></i> Budgets créés par les utilisateurs</span
+        >
+        <span class="flux-val">{{ stats.totalBudgets }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- État des comptes + Répartition par ville -->
   <div class="grid-2">
     <div class="panel">
       <div class="panel-head">
-        <h2><i class="bi bi-graph-up-arrow"></i> Flux financiers</h2>
+        <h2><i class="bi bi-people"></i> État des comptes</h2>
       </div>
       <div class="panel-body">
-        <div class="flux-ligne">
-          <span class="flux-label"><i class="bi bi-arrow-down-circle"></i> Total des revenus</span>
-          <span class="flux-val income">+ {{ stats.totalRevenus }} DT</span>
-        </div>
-        <div class="flux-ligne">
-          <span class="flux-label"><i class="bi bi-arrow-up-circle"></i> Total des dépenses</span>
-          <span class="flux-val expense">- {{ stats.totalDepenses }} DT</span>
-        </div>
-        <div class="flux-ligne total">
-          <span class="flux-label"><i class="bi bi-wallet2"></i> Volume total géré</span>
-          <span class="flux-val">{{ stats.totalRevenus + stats.totalDepenses }} DT</span>
+        <div class="chart-box"><canvas id="chartComptes"></canvas></div>
+        <div class="chart-legende">
+          <span class="lg">{{ stats.utilisateursActifs }} actifs</span>
+          <span class="lg muted">{{ stats.utilisateursSuspendus }} suspendus</span>
         </div>
       </div>
     </div>
 
     <div class="panel">
       <div class="panel-head">
-        <h2><i class="bi bi-collection"></i> Contenu de la plateforme</h2>
+        <h2><i class="bi bi-geo-alt"></i> Répartition par gouvernorat</h2>
       </div>
       <div class="panel-body">
-        <div class="flux-ligne">
-          <span class="flux-label"><i class="bi bi-tags"></i> Catégories globales</span>
-          <span class="flux-val">{{ stats.totalCategories }}</span>
-        </div>
-        <div class="flux-ligne">
-          <span class="flux-label"><i class="bi bi-pie-chart"></i> Budgets créés</span>
-          <span class="flux-val">{{ stats.totalBudgets }}</span>
-        </div>
-        <div class="flux-ligne">
-          <span class="flux-label"><i class="bi bi-person-dash"></i> Comptes suspendus</span>
-          <span class="flux-val">{{ stats.utilisateursSuspendus }}</span>
-        </div>
+        @if (aDesDonnees(stats.parVille)) {
+          <div class="chart-box"><canvas id="chartVille"></canvas></div>
+        } @else {
+          <div class="empty"><i class="bi bi-geo-alt"></i><span>Aucune donnée de ville</span></div>
+        }
       </div>
+    </div>
+  </div>
+
+  <!-- Titre section démographie -->
+  <div class="page-head" style="margin-top: 10px">
+    <div>
+      <h1 style="font-size: 22px">
+        <i class="bi bi-person-lines-fill"></i> Démographie des utilisateurs
+      </h1>
+      <p>Répartition par genre et par âge</p>
+    </div>
+  </div>
+
+  <!-- Genre et âge -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-gender-ambiguous"></i> Répartition par genre</h2>
+      </div>
+      <div class="panel-body">
+        @if (aDesDonnees(stats.parGenre)) {
+          <div class="chart-box"><canvas id="chartGenre"></canvas></div>
+        } @else {
+          <div class="empty">
+            <i class="bi bi-gender-ambiguous"></i><span>Aucune donnée de genre</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2><i class="bi bi-calendar3"></i> Répartition par tranche d'âge</h2>
+      </div>
+      <div class="panel-body">
+        <div class="chart-box"><canvas id="chartAge"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Croissance des inscriptions -->
+  <div class="panel">
+    <div class="panel-head">
+      <h2><i class="bi bi-graph-up-arrow"></i> Croissance des inscriptions</h2>
+    </div>
+    <div class="panel-body">
+      <div class="chart-box"><canvas id="chartInscriptions"></canvas></div>
     </div>
   </div>
 } @else {

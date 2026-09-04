@@ -18,6 +18,10 @@ export class Goals implements OnInit {
   confirmationOuverte = false;
   idASupprimer: number | null = null;
 
+  // Gestion objectif expiré
+  modaleExpireOuverte = false;
+  objectifExpire: Objectif | null = null;
+
   constructor(
     private service: ObjectifService,
     private cd: ChangeDetectorRef,
@@ -39,14 +43,16 @@ export class Goals implements OnInit {
       },
     });
   }
+  objectifsActifs(): Objectif[] {
+    return this.objectifs.filter((o) => !o.atteint);
+  }
 
+  objectifsAtteints(): Objectif[] {
+    return this.objectifs.filter((o) => o.atteint);
+  }
   pourcentage(o: Objectif): number {
     if (!o.montantCible || o.montantCible === 0) return 0;
     return Math.min(100, Math.round((o.montantActuel / o.montantCible) * 100));
-  }
-
-  atteint(o: Objectif): boolean {
-    return o.montantActuel >= o.montantCible;
   }
 
   reste(o: Objectif): number {
@@ -56,6 +62,7 @@ export class Goals implements OnInit {
   ouvrirAjout() {
     this.idEnEdition = null;
     this.erreur = '';
+    this.chargement = false;
     this.modaleOuverte = true;
     this.cd.detectChanges();
   }
@@ -63,6 +70,7 @@ export class Goals implements OnInit {
   editer(o: Objectif) {
     this.idEnEdition = o.id;
     this.erreur = '';
+    this.chargement = false;
     this.modaleOuverte = true;
     this.cd.detectChanges();
   }
@@ -74,7 +82,7 @@ export class Goals implements OnInit {
     this.cd.detectChanges();
   }
 
-  valider(nom: string, cible: string, actuel: string, dateLimite: string) {
+  valider(nom: string, cible: string, dateLimite: string) {
     this.erreur = '';
 
     if (!nom || !nom.trim()) {
@@ -87,19 +95,12 @@ export class Goals implements OnInit {
       this.cd.detectChanges();
       return;
     }
-    const montantActuel = actuel ? parseFloat(actuel) : 0;
-    if (montantActuel < 0) {
-      this.erreur = 'Le montant actuel doit être positif';
-      this.cd.detectChanges();
-      return;
-    }
 
     this.chargement = true;
 
     const donnees = {
       nom: nom.trim(),
       montantCible: parseFloat(cible),
-      montantActuel: montantActuel,
       dateLimite: dateLimite || null,
     };
 
@@ -121,6 +122,7 @@ export class Goals implements OnInit {
     });
   }
 
+  // ---- Suppression ----
   demanderSuppression(id: number) {
     this.idASupprimer = id;
     this.confirmationOuverte = true;
@@ -143,6 +145,42 @@ export class Goals implements OnInit {
       },
       error: () => {
         this.confirmationOuverte = false;
+        this.cd.detectChanges();
+      },
+    });
+  }
+
+  // ---- Objectif expiré ----
+  ouvrirExpire(o: Objectif) {
+    this.objectifExpire = o;
+    this.modaleExpireOuverte = true;
+    this.cd.detectChanges();
+  }
+
+  fermerExpire() {
+    this.modaleExpireOuverte = false;
+    this.objectifExpire = null;
+    this.cd.detectChanges();
+  }
+
+  // Prolonger : ouvre le modale d'édition pour choisir une nouvelle date
+  prolongerObjectif() {
+    if (!this.objectifExpire) return;
+    const obj = this.objectifExpire;
+    this.fermerExpire();
+    this.editer(obj);
+  }
+
+  // Ne pas prolonger = supprimer l'objectif (rend l'épargne)
+  supprimerExpire() {
+    if (!this.objectifExpire) return;
+    this.service.supprimer(this.objectifExpire.id).subscribe({
+      next: () => {
+        this.fermerExpire();
+        this.charger();
+      },
+      error: () => {
+        this.fermerExpire();
         this.cd.detectChanges();
       },
     });

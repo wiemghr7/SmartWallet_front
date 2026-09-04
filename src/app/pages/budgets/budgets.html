@@ -81,17 +81,25 @@
       <div class="modale-body">
         <div class="champ">
           <label>Catégorie</label>
-          <div class="cat-choix">
-            @for (cat of categoriesDepense; track cat.id) {
-              <button
-                class="cat-pastille"
-                [class.actif]="categorieChoisieId === cat.id"
-                (click)="choisirCategorie(cat.id)"
-              >
-                {{ cat.nom }}
-              </button>
-            }
-          </div>
+          @if (idEnEdition) {
+            <!-- En modification : catégorie affichée mais non modifiable -->
+            <div class="cat-verrouillee">
+              <i class="bi bi-lock"></i> {{ budgetEnEdition()?.categorie?.nom }}
+            </div>
+          } @else {
+            <!-- En création : on peut choisir -->
+            <div class="cat-choix">
+              @for (cat of categoriesDepense; track cat.id) {
+                <button
+                  class="cat-pastille"
+                  [class.actif]="categorieChoisieId === cat.id"
+                  (click)="choisirCategorie(cat.id)"
+                >
+                  {{ cat.nom }}
+                </button>
+              }
+            </div>
+          }
         </div>
 
         <div class="champ">

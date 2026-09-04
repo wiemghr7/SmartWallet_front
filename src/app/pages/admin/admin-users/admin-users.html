@@ -34,9 +34,8 @@
       <tr>
         <th>Nom complet</th>
         <th>Email</th>
-        <th class="right">Revenu</th>
         <th>Statut</th>
-        <th class="right">Action</th>
+        <th class="center">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -46,7 +45,6 @@
             <strong>{{ u.prenom }} {{ u.nom }}</strong>
           </td>
           <td>{{ u.email || '—' }}</td>
-          <td class="right">{{ u.revenuMensuel }} DT</td>
           <td>
             @if (u.estActif) {
               <span class="badge income">Actif</span>
@@ -54,7 +52,7 @@
               <span class="badge expense">Suspendu</span>
             }
           </td>
-          <td class="right">
+          <td class="center">
             @if (u.estActif) {
               <button class="btn-suspend" (click)="demanderBascule(u)">
                 <i class="bi bi-pause-circle"></i> Suspendre
